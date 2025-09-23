@@ -2,52 +2,51 @@ package com.acme.vocatio.service;
 
 import com.acme.vocatio.model.Profile;
 import com.acme.vocatio.repository.ProfileRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ProfileService {
 
-    private final ProfileRepository ProfileRepository;
+    private final ProfileRepository profileRepository;
 
-
-    public Profile create(Profile Profile) {
-        return ProfileRepository.save(Profile);
+    @Transactional
+    public Profile create(Profile profile) {
+        return profileRepository.save(profile);
     }
-
 
     public List<Profile> findAll() {
-        return ProfileRepository.findAll();
+        return profileRepository.findAll();
     }
-
 
     public Profile findById(Long id) {
-        return ProfileRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Perfil con id " + id + " no encontrado."));
+        return profileRepository
+                .findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Perfil con id " + id + " no encontrado."));
     }
 
-
-    public Profile update(Long id, Profile Profile) {
-        if (!ProfileRepository.existsById(id)) {
-            throw new RuntimeException("Libro con id " + id + " no existe.");
+    @Transactional
+    public Profile update(Long id, Profile profile) {
+        if (!profileRepository.existsById(id)) {
+            throw new IllegalArgumentException("Perfil con id " + id + " no existe.");
         }
-        Profile.setId(id);
-        return ProfileRepository.save(Profile);
+        profile.setId(id);
+        return profileRepository.save(profile);
     }
 
-
+    @Transactional
     public void delete(Long id) {
-        if (!ProfileRepository.existsById(id)) {
-            throw new RuntimeException("Libro con id " + id + " no existe.");
+        if (!profileRepository.existsById(id)) {
+            throw new IllegalArgumentException("Perfil con id " + id + " no existe.");
         }
-        ProfileRepository.deleteById(id);
+        profileRepository.deleteById(id);
     }
 
-
-    public List<Profile> findByProfileName(String user_id) {
-        return ProfileRepository.findByProfileId(user_id);
+    public List<Profile> findByProfileName(String name) {
+        return profileRepository.findByNameContainingIgnoreCase(name);
     }
 }

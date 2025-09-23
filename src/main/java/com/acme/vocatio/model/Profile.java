@@ -1,24 +1,29 @@
 package com.acme.vocatio.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-
+import lombok.Setter;
 
 @Entity
 @Table(name = "profiles")
-@Data
-@AllArgsConstructor
+@Getter
+@Setter
 @NoArgsConstructor
 public class Profile {
+
     @Id
     @Column(name = "id_usuario")
     private Long id;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @MapsId
     @JoinColumn(name = "id_usuario")
     private User user;
@@ -29,6 +34,6 @@ public class Profile {
 
     private String grade;
 
-    @Column(columnDefinition = "jsonb")
-    private String personal_interests; // O un tipo más elaborado con @Convert
+    @Column(name = "personal_interests", columnDefinition = "jsonb")
+    private String personalInterests;
 }
