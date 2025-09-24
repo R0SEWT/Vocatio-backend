@@ -2,6 +2,8 @@ package com.acme.vocatio.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -12,6 +14,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/** Entidad JPA del perfil individual. */
 @Entity
 @Table(name = "profiles")
 @Getter
@@ -32,7 +35,9 @@ public class Profile {
 
     private Short age;
 
-    private String grade;
+    @Enumerated(EnumType.STRING)
+    @Column(length = 64)
+    private AcademicGrade grade;
 
     @Column(name = "personal_interests", columnDefinition = "jsonb")
     private String personalInterests;
