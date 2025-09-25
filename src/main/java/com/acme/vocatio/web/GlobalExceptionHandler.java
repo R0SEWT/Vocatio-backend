@@ -2,6 +2,7 @@ package com.acme.vocatio.web;
 
 import com.acme.vocatio.exception.DuplicateEmailException;
 import com.acme.vocatio.exception.InvalidCredentialsException;
+import com.acme.vocatio.exception.ProfileNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import java.util.HashMap;
 import java.util.List;
@@ -59,5 +60,13 @@ public class GlobalExceptionHandler {
         Map<String, Object> body = new HashMap<>();
         body.put("message", ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+    }
+
+    @ExceptionHandler(ProfileNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleProfileNotFound(ProfileNotFoundException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("message", ex.getMessage());
+        body.put("suggestions", List.of("Verifique que el usuario exista", "Complete el perfil si es necesario"));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 }
