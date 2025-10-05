@@ -133,6 +133,10 @@ Basado en `BD/schema.sql`, las tablas principales son:
 **Exploración:**
 - `Carrera` - Catálogo de carreras profesionales
 
+**Módulo 4 - Recursos de Aprendizaje (M4-01 ✅ IMPLEMENTADO):**
+- `recursoaprendizaje` - Recursos educativos con filtrado por carrera y área
+- `savedresources` - Favoritos/recursos guardados por usuario
+
 ---
 
 ## 📦 Componentes del Proyecto
@@ -1108,6 +1112,8 @@ docker-compose logs -f postgres
 
 ## 📊 Estructura de la Base de Datos
 
+### **Estructura M4-01: Recursos de Aprendizaje**
+
 ```
 ┌──────────────┐         ┌──────────────┐
 │    Usuario   │1──────1│   Perfil     │
@@ -1118,20 +1124,129 @@ docker-compose logs -f postgres
 │ created_at   │         │ grado        │
 │ is_active    │         │ intereses    │
 └──────┬───────┘         └──────────────┘
-       │
-       │1
-       │
-       │*
-┌──────▼────────┐
-│ RefreshToken  │
-│               │
-│ id            │
-│ token         │
-│ user_id       │
-│ expires_at    │
-│ revoked       │
-└───────────────┘
+       │                        │
+       │1                       │*
+       │                        │
+       │*                ┌──────▼──────────┐
+┌──────▼────────┐        │ SavedResource   │
+│ RefreshToken  │        │                 │
+│               │        │ id              │
+│ id            │        │ user_id         │───┐
+│ token         │        │ resource_id     │   │
+│ user_id       │        │ saved_at        │   │
+│ expires_at    │        └─────────────────┘   │
+│ revoked       │                              │
+└───────────────┘                              │
+                                               │*
+                            ┌──────────────────▼──────────────────┐
+                            │         LearningResource            │
+                            │                                     │
+                            │ id_recurso                          │
+                            │ id_carrera                          │
+                            │ titulo                              │
+                            │ url_recurso                         │
+                            │ descripcion                         │
+                            │ duracion_minutos                    │
+                            │ id_area_interes                     │
+                            └─────────────────────────────────────┘
 ```
+
+### **Estructura de Tablas M4-01:**
+
+```sql
+-- Recursos de aprendizaje
+CREATE TABLE recursoaprendizaje (
+    id_recurso SERIAL PRIMARY KEY,
+    id_carrera INTEGER NOT NULL,
+    titulo VARCHAR(255) NOT NULL,
+    url_recurso VARCHAR(255) NOT NULL,
+    descripcion TEXT,
+    duracion_minutos INTEGER,
+    id_area_interes INTEGER
+);
+
+-- Favoritos de usuario
+CREATE TABLE savedresources (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    resource_id INTEGER NOT NULL,
+    saved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (resource_id) REFERENCES recursoaprendizaje(id_recurso)
+);
+```
+
+### **Tablas del Sistema:**
+
+| Tabla | Descripción |
+|-------|-------------|
+| `users` | Credenciales de autenticación |
+| `profiles` | Datos personales del usuario |
+| `refresh_tokens` | Tokens JWT de larga duración |
+| `recursoaprendizaje` | Recursos de aprendizaje |
+| `savedresources` | Favoritos del usuario |
+
+---
+
+---
+
+## 📚 **MÓDULO 4 IMPLEMENTADO - Ver Materiales Sugeridos (M4-01)**
+
+### ✅ **Funcionalidad Implementada:**
+
+**Fecha:** Octubre 5, 2025  
+**Rama:** `17-m4-01-ver-materiales-sugeridos-por-carrera-o-área-vocacional-videos-lecturas`
+
+### **� Componentes Implementados:**
+
+#### **LearningResourceController.java** - API REST Endpoints
+```java
+@RestController
+@RequestMapping("/api/learning-resources")
+public class LearningResourceController {
+    
+    // Recursos por carrera específica  
+    @GetMapping("/by-career/{careerId}")
+    public ResponseEntity<LearningResourceResponse> getResourcesByCareer(
+            @PathVariable Long careerId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+    }
+    
+    // Recursos por área de interés
+    @GetMapping("/by-area/{areaId}")
+    public ResponseEntity<LearningResourceResponse> getResourcesByArea(
+            @PathVariable Long areaId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+    }
+    
+    // Recomendaciones personalizadas
+    @GetMapping("/recommended")
+    public ResponseEntity<LearningResourceResponse> getRecommendedResources(
+            @RequestParam List<Long> careerIds,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+    }
+    
+    // Gestión de favoritos
+    @PostMapping("/save")           // Guardar recurso
+    @DeleteMapping("/unsave/{id}")  // Quitar de favoritos  
+    @GetMapping("/{id}/is-saved")   // Verificar si está guardado
+    @GetMapping("/saved")           // Listar favoritos del usuario
+}
+```
+
+### **🎯 Características del M4-01:**
+
+| Funcionalidad | Descripción |
+|---------------|-------------|  
+| **Filtrado Simple** | Solo por carrera y área de interés |
+| **Paginación** | Implementada en todos los endpoints |
+| **Favoritos** | Guardar/quitar recursos de favoritos |
+| **Recomendaciones** | Recursos sugeridos por múltiples carreras |
+| **API REST** | Endpoints con autenticación JWT |
+| **Testing** | Colecciones Postman disponibles |
 
 ---
 
@@ -1139,14 +1254,16 @@ docker-compose logs -f postgres
 
 Basado en el `manual.md`, el proyecto debe implementar:
 
-- **Módulo 2:** Tests vocacionales
+- ✅ **Módulo 4.1:** Ver materiales sugeridos (COMPLETADO - Sin filtrado por tipo)
+- **Módulo 2:** Tests vocacionales  
 - **Módulo 3:** Exploración de carreras
-- **Módulo 4:** Rutas de aprendizaje
+- **Módulo 4.2:** Rutas de aprendizaje avanzadas
 - **Módulo 5:** Reportes y recomendaciones
 
 ---
 
 **Documentación generada para el proyecto Vocatio Backend**  
 **Fecha:** Octubre 2025  
-**Versión:** 0.0.1-SNAPSHOT
+**Versión:** 0.0.1-SNAPSHOT  
+**Última actualización M4-01:** Octubre 5, 2025
 
