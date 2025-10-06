@@ -1,17 +1,21 @@
-# --- Build stage ---
-FROM maven:3.9-eclipse-temurin-21 AS build
+# -------- Etapa de construcción --------
+# Imagen base con Java 21
+FROM eclipse-temurin:21-jdk AS build
+# Definir directorio de trabajo
 WORKDIR /app
-COPY pom.xml .
-RUN mvn -q -DskipTests dependency:go-offline
-COPY src ./src
-RUN mvn -q -DskipTests package
-
-# --- Run stage ---
-FROM eclipse-temurin:21-jre-alpine
+# Copiar código fuente al contenedor
+COPY . .
+# Dar permisos de ejecución al Maven Wrapper
+RUN chmod +x mvnw
+# Construir la aplicación (sin ejecutar tests)
+RUN ./mvnw clean package -DskipTests
+# -------- Imagen final --------
+FROM eclipse-temurin:21-jdk
+# Definir directorio de trabajo
 WORKDIR /app
+# Copiar el JAR generado desde la etapa de build
 COPY --from=build /app/target/*.jar app.jar
-
-# Render inyecta $PORT; pásalo a Spring y activa perfil prod
-ENV JAVA_OPTS="-XX:MaxRAMPercentage=75"
+# Exponer el puerto de la aplicación
 EXPOSE 8080
-ENTRYPOINT ["sh","-c","java $JAVA_OPTS -Dserver.port=${PORT} -Dspring.profiles.active=prod -jar /app/app.jar"]
+# Comando de inicio
+ENTRYPOINT ["java", "-jar", "app.jar"]
