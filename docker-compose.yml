@@ -1,0 +1,22 @@
+services:
+  debug: true
+  postgres:
+    image: postgres:16
+    container_name: postgres_vocatio
+    restart: always
+    environment:
+      POSTGRES_DB: vocatio_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5434:5432"   # HOST:CONTENEDOR  34
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d vocatio_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+volumes:
+  postgres_data:
+
