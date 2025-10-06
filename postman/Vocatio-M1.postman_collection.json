@@ -362,7 +362,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n  \"age\": 18,\n  \"grade\": \"SUPERIOR_TECNICA_2\",\n  \"interests\": [\n    \"  Tecnolog\u00eda  \",\n    \"Arte\",\n    \"Tecnolog\u00eda\",\n    \"Arte\"\n  ]\n}"
+                            "raw": "{\n  \"age\": 18,\n  \"grade\": \"SUPERIOR_TECNICA_2\",\n  \"interests\": [\n    \"  Tecnolog\u00eda  \",\n    \"Arte\",\n    \"Tecnolog\u00eda\",\n    \"Arte\",\n    \"TECNOLOG\u00cdA\"\n  ]\n}"
                         },
                         "url": {
                             "raw": "{{baseUrl}}/users/me",
