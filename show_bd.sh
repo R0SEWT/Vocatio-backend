@@ -1,1 +1,0 @@
-psql -h localhost -p 5434 -U postgres -d vocatio_db
