@@ -1,0 +1,588 @@
+{
+    "info": {
+        "_postman_id": "8aedf829-e8bb-4ef7-9cc2-671199905056",
+        "name": "Vocatio API - M\u00f3dulo 1",
+        "description": "Colecci\u00f3n de pruebas funcionales para el M\u00f3dulo 1 (Gesti\u00f3n de cuenta y perfil). Incluye escenarios felices y de error para registro, login y perfil b\u00e1sico.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "M1-01 \u00b7 Registro y acceso",
+            "description": "Escenarios de registro y autenticaci\u00f3n (historia #2).",
+            "item": [
+                {
+                    "name": "M1-01 \u00b7 Registro - \u00c9xito",
+                    "event": [
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "const uuid = pm.variables.replaceIn('{{$randomUUID}}');",
+                                    "const email = `qa.m1.${uuid}@vocatio.test`.toLowerCase();",
+                                    "pm.collectionVariables.set('registeredEmail', email);",
+                                    "pm.collectionVariables.set('registeredUserId', '');",
+                                    "pm.collectionVariables.set('accessToken', '');",
+                                    "pm.collectionVariables.set('refreshToken', '');",
+                                    "pm.collectionVariables.set('accessTokenExpiresAt', '');",
+                                    "pm.collectionVariables.set('refreshTokenExpiresAt', '');"
+                                ]
+                            }
+                        },
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status 201 creado', function () { pm.response.to.have.status(201); });",
+                                    "const json = pm.response.json();",
+                                    "pm.test('Mensaje de registro exitoso', function () { pm.expect(json.message).to.eql('Registro exitoso'); });",
+                                    "pm.test('Resumen de usuario incluye email esperado', function () { pm.expect(json.user.email).to.eql(pm.collectionVariables.get('registeredEmail')); });",
+                                    "pm.test('Se devuelve token de acceso', function () { pm.expect(json.tokens.accessToken).to.be.a('string').and.not.empty; });",
+                                    "pm.test('Se devuelve token de refresco', function () { pm.expect(json.tokens.refreshToken).to.be.a('string').and.not.empty; });",
+                                    "pm.collectionVariables.set('registeredUserId', json.user.id);",
+                                    "pm.collectionVariables.set('accessToken', json.tokens.accessToken);",
+                                    "pm.collectionVariables.set('refreshToken', json.tokens.refreshToken);",
+                                    "pm.collectionVariables.set('accessTokenExpiresAt', json.tokens.accessTokenExpiresAt);",
+                                    "pm.collectionVariables.set('refreshTokenExpiresAt', json.tokens.refreshTokenExpiresAt);"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"{{registeredEmail}}\",\n  \"password\": \"{{testPassword}}\",\n  \"rememberMe\": false\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/register",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "register"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "M1-01 \u00b7 Registro - Email duplicado",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status 409 por email duplicado', function () { pm.response.to.have.status(409); });",
+                                    "const json = pm.response.json();",
+                                    "pm.test('Mensaje de email duplicado', function () { pm.expect(json.message).to.eql('El email ya est\u00e1 registrado'); });",
+                                    "pm.test('Se sugieren opciones para el usuario', function () { pm.expect(json.suggestions).to.include.members(['Inicia sesi\u00f3n con tu cuenta', 'Recupera tu contrase\u00f1a si la olvidaste']); });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"{{registeredEmail}}\",\n  \"password\": \"{{testPassword}}\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/register",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "register"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "M1-01 \u00b7 Registro - Pol\u00edtica de contrase\u00f1a",
+                    "event": [
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "const uuid = pm.variables.replaceIn('{{$randomUUID}}');",
+                                    "pm.variables.set('invalidPasswordEmail', `qa.m1.policy.${uuid}@vocatio.test`.toLowerCase());"
+                                ]
+                            }
+                        },
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status 400 por contrase\u00f1a insegura', function () { pm.response.to.have.status(400); });",
+                                    "const json = pm.response.json();",
+                                    "pm.test('Mensaje gen\u00e9rico de validaci\u00f3n', function () { pm.expect(json.message).to.eql('Revise los datos enviados'); });",
+                                    "pm.test('Se devuelven las tres reglas incumplidas', function () {\n                    const expected = [\n                      'La contrase\u00f1a debe tener al menos 8 caracteres',\n                      'La contrase\u00f1a debe incluir al menos una letra may\u00fascula',\n                      'La contrase\u00f1a debe incluir al menos un n\u00famero'\n                    ];\n                    pm.expect(json.errors.password).to.be.an('array');\n                    pm.expect(json.errors.password).to.have.members(expected);\n                  });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"{{invalidPasswordEmail}}\",\n  \"password\": \"abc\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/register",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "register"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "M1-01 \u00b7 Login - \u00c9xito",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status 200 en login', function () { pm.response.to.have.status(200); });",
+                                    "const json = pm.response.json();",
+                                    "pm.test('Mensaje de login exitoso', function () { pm.expect(json.message).to.eql('Inicio de sesi\u00f3n exitoso'); });",
+                                    "pm.test('Tokens presentes en login', function () { pm.expect(json.tokens.accessToken).to.be.a('string').and.not.empty; });",
+                                    "pm.collectionVariables.set('accessToken', json.tokens.accessToken);",
+                                    "pm.collectionVariables.set('refreshToken', json.tokens.refreshToken);",
+                                    "pm.collectionVariables.set('accessTokenExpiresAt', json.tokens.accessTokenExpiresAt);",
+                                    "pm.collectionVariables.set('refreshTokenExpiresAt', json.tokens.refreshTokenExpiresAt);"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"{{registeredEmail}}\",\n  \"password\": \"{{testPassword}}\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/login",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "login"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "M1-01 \u00b7 Login - Recordarme",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status 200 en login recordarme', function () { pm.response.to.have.status(200); });",
+                                    "const json = pm.response.json();",
+                                    "pm.collectionVariables.set('accessToken', json.tokens.accessToken);",
+                                    "pm.collectionVariables.set('refreshToken', json.tokens.refreshToken);",
+                                    "pm.collectionVariables.set('accessTokenExpiresAt', json.tokens.accessTokenExpiresAt);",
+                                    "pm.collectionVariables.set('refreshTokenExpiresAt', json.tokens.refreshTokenExpiresAt);",
+                                    "pm.test('Refresh token con vigencia extendida', function () {\n                    const expiry = new Date(json.tokens.refreshTokenExpiresAt);\n                    const now = new Date();\n                    const diffDays = (expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);\n                    const minDays = Number(pm.collectionVariables.get('rememberMeMinDays') || 20);\n                    pm.expect(diffDays).to.be.above(minDays);\n                  });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"{{registeredEmail}}\",\n  \"password\": \"{{testPassword}}\",\n  \"rememberMe\": true\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/login",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "login"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "M1-01 \u00b7 Login - Credenciales inv\u00e1lidas",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status 401 por credenciales inv\u00e1lidas', function () { pm.response.to.have.status(401); });",
+                                    "const json = pm.response.json();",
+                                    "pm.test('Mensaje de credenciales inv\u00e1lidas', function () { pm.expect(json.message).to.eql('Credenciales inv\u00e1lidas'); });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"{{registeredEmail}}\",\n  \"password\": \"WrongPass1\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/login",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "login"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "M1-02 \u00b7 Perfil b\u00e1sico",
+            "description": "Escenarios de perfil (historia #3).",
+            "item": [
+                {
+                    "name": "M1-02 \u00b7 Perfil - Obtener sin datos",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status 200 al obtener perfil vac\u00edo', function () { pm.response.to.have.status(200); });",
+                                    "const json = pm.response.json();",
+                                    "pm.test('El email coincide con el usuario autenticado', function () { pm.expect(json.email).to.eql(pm.collectionVariables.get('registeredEmail')); });",
+                                    "pm.test('Edad y grado iniciales nulos', function () { pm.expect(json.age).to.be.null; pm.expect(json.grade).to.be.null; pm.expect(json.gradeLabel).to.be.null; });",
+                                    "pm.test('Lista de intereses vac\u00eda', function () { pm.expect(json.interests).to.be.an('array').that.is.empty; });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{accessToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/users/me",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "users",
+                                "me"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "M1-02 \u00b7 Perfil - Actualizar datos b\u00e1sicos",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status 200 al actualizar perfil', function () { pm.response.to.have.status(200); });",
+                                    "const json = pm.response.json();",
+                                    "pm.test('Mensaje de actualizaci\u00f3n', function () { pm.expect(json.message).to.eql('Perfil actualizado'); });",
+                                    "pm.test('Se devuelve perfil con datos normalizados', function () {\n                    pm.expect(json.profile.email).to.eql(pm.collectionVariables.get('registeredEmail'));\n                    pm.expect(json.profile.age).to.eql(18);\n                    pm.expect(json.profile.grade).to.eql('SUPERIOR_TECNICA_2');\n                    pm.expect(json.profile.gradeLabel).to.eql('2\u00b0 ciclo de instituto t\u00e9cnico');\n                    pm.expect(json.profile.interests).to.eql(['Tecnolog\u00eda', 'Arte']);\n                  });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{accessToken}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"age\": 18,\n  \"grade\": \"SUPERIOR_TECNICA_2\",\n  \"interests\": [\n    \"  Tecnolog\u00eda  \",\n    \"Arte\",\n    \"Tecnolog\u00eda\",\n    \"Arte\"\n  ]\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/users/me",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "users",
+                                "me"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "M1-02 \u00b7 Perfil - Obtener con datos",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status 200 al consultar perfil actualizado', function () { pm.response.to.have.status(200); });",
+                                    "const json = pm.response.json();",
+                                    "pm.test('Perfil persiste los cambios', function () {\n                    pm.expect(json.email).to.eql(pm.collectionVariables.get('registeredEmail'));\n                    pm.expect(json.age).to.eql(18);\n                    pm.expect(json.grade).to.eql('SUPERIOR_TECNICA_2');\n                    pm.expect(json.interests).to.eql(['Tecnolog\u00eda', 'Arte']);\n                  });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{accessToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/users/me",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "users",
+                                "me"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "M1-02 \u00b7 Perfil - Edad fuera de rango",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status 400 por edad inv\u00e1lida', function () { pm.response.to.have.status(400); });",
+                                    "const json = pm.response.json();",
+                                    "pm.test('Mensaje espec\u00edfico para edad', function () { pm.expect(json.errors.age[0]).to.eql('La edad debe estar entre 13 y 30 a\u00f1os'); });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{accessToken}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"age\": 12,\n  \"grade\": \"SECUNDARIA_3\",\n  \"interests\": [\"Tecnolog\u00eda\"]\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/users/me",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "users",
+                                "me"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "M1-02 \u00b7 Perfil - Grado inv\u00e1lido",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status 400 por grado inexistente', function () { pm.response.to.have.status(400); });",
+                                    "const json = pm.response.json();",
+                                    "pm.test('Mensaje espec\u00edfico para grado', function () { pm.expect(json.errors.grade[0]).to.eql('El grado acad\u00e9mico no es v\u00e1lido'); });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{accessToken}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"age\": 18,\n  \"grade\": \"UNIVERSIDAD_10\",\n  \"interests\": [\"Tecnolog\u00eda\"]\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/users/me",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "users",
+                                "me"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "M1-02 \u00b7 Perfil - Intereses obligatorios",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status 400 por intereses vac\u00edos', function () { pm.response.to.have.status(400); });",
+                                    "const json = pm.response.json();",
+                                    "pm.test('Mensaje espec\u00edfico para intereses', function () { pm.expect(json.errors.interests[0]).to.eql('Selecciona al menos un inter\u00e9s'); });"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{accessToken}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"age\": 18,\n  \"grade\": \"SECUNDARIA_4\",\n  \"interests\": []\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/users/me",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "users",
+                                "me"
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "variable": [
+        {
+            "key": "testPassword",
+            "value": "Password1",
+            "type": "string"
+        },
+        {
+            "key": "registeredEmail",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "registeredUserId",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "accessToken",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "refreshToken",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "accessTokenExpiresAt",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "refreshTokenExpiresAt",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "rememberMeMinDays",
+            "value": "20",
+            "type": "string"
+        }
+    ]
+}
