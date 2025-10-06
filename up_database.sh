@@ -8,3 +8,8 @@ docker run --rm -p 8080:8080 \
   -e SPRING_DATASOURCE_PASSWORD=password \
   -e JWT_SECRET="cambia-esto" \
   vocatio
+
+
+# Trouble shooting
+
+# host.docker.internal remplaza por la ip del host (si no tienes docker desktop)
