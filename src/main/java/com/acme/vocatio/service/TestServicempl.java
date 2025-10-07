@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class TestServiceImpl implements TestService {
+public class TestServicempl implements TestService {
 
     private final TestVocacionalRepository testVocacionalRepository;
     private final OptionRepository optionRepository;
@@ -33,7 +33,7 @@ public class TestServiceImpl implements TestService {
     public List<AnswerAreaDTO> submitTest(List<AnswerDTO> respuestas) {
         // Obtenemos los IDs de las opciones seleccionadas
         List<Integer> idsOpciones = respuestas.stream()
-                .map(AnswerDTO::getidOpcionSeleccionada)
+                .map(AnswerDTO::getIdOpcionSeleccionada)
                 .collect(Collectors.toList());
 
         // Buscamos todas las opciones seleccionadas en la base de datos de una sola vez
@@ -47,9 +47,9 @@ public class TestServiceImpl implements TestService {
         // Convertimos el mapa de resultados a una lista de DTOs y la ordenamos de mayor a menor puntaje
         return puntajesPorArea.entrySet().stream()
                 .map(entry -> new AnswerAreaDTO(
-                        entry.getKey().getnombreArea(),
+                        entry.getKey().getNombreArea(),
                         entry.getValue().intValue(),
-                        entry.getKey().getdescripcion()))
+                        entry.getKey().getDescripcion()))
                 .sorted(Comparator.comparingInt(AnswerAreaDTO::getPuntaje).reversed())
                 .collect(Collectors.toList());
     }
