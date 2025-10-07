@@ -43,14 +43,19 @@ public class SecurityConfig {
                 // Rutas públicas usando AntPathRequestMatcher
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                AntPathRequestMatcher.antMatcher("/"),
-                                AntPathRequestMatcher.antMatcher("/auth/register"),
-                                AntPathRequestMatcher.antMatcher("/auth/login"),
-                                AntPathRequestMatcher.antMatcher("/v3/api-docs/**"),
-                                AntPathRequestMatcher.antMatcher("/swagger-ui/**"),
-                                AntPathRequestMatcher.antMatcher("/swagger-ui.html"),
-                                AntPathRequestMatcher.antMatcher("/swagger-resources/**"),
-                                AntPathRequestMatcher.antMatcher("/webjars/**")
+                                // Raíz
+                                AntPathRequestMatcher.antMatcher("/api/v1/"),
+                                // Auth público
+                                AntPathRequestMatcher.antMatcher("/api/v1/auth/register"),
+                                AntPathRequestMatcher.antMatcher("/api/v1/auth/login"),
+                                // Swagger / OpenAPI públicos
+                                AntPathRequestMatcher.antMatcher("/api/v1/v3/api-docs/**"),
+                                AntPathRequestMatcher.antMatcher("/api/v1/swagger-ui/**"),
+                                AntPathRequestMatcher.antMatcher("/api/v1/swagger-ui.html"),
+                                AntPathRequestMatcher.antMatcher("/api/v1/swagger-resources/**"),
+                                AntPathRequestMatcher.antMatcher("/api/v1/webjars/**"),
+                                // (opcional) health público
+                                AntPathRequestMatcher.antMatcher("/api/v1/actuator/health")
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
