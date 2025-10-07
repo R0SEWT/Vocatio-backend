@@ -2,6 +2,7 @@ package com.acme.vocatio.model;
 
 /**
  * Enum que define los diferentes tipos de recursos de aprendizaje disponibles.
+ * Los valores coinciden con el enum de la base de datos PostgreSQL.
  */
 public enum TipoRecurso {
     
@@ -11,24 +12,19 @@ public enum TipoRecurso {
     PDF("PDF", true, false),
     
     /**
-     * Enlace externo a sitio web.
-     */
-    EXTERNAL_LINK("Enlace Externo", false, true),
-    
-    /**
      * Video en línea o descargable.
      */
     VIDEO("Video", false, true),
     
     /**
-     * Artículo o blog post.
+     * Enlace externo a sitio web.
      */
-    ARTICLE("Artículo", false, true),
+    ENLACE("Enlace Externo", false, true),
     
     /**
-     * Curso en línea.
+     * Testimonio de estudiante o profesional.
      */
-    COURSE("Curso", false, true);
+    TESTIMONIO("Testimonio", false, true);
     
     private final String descripcion;
     private final boolean esDescargable;
