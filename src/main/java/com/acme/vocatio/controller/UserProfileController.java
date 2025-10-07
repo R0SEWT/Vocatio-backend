@@ -1,5 +1,7 @@
 package com.acme.vocatio.controller;
 
+import com.acme.vocatio.dto.profile.PersonalDataUpdateRequest;
+import com.acme.vocatio.dto.profile.PersonalDataUpdateResponse;
 import com.acme.vocatio.dto.profile.ProfileDto;
 import com.acme.vocatio.dto.profile.ProfileUpdateRequest;
 import com.acme.vocatio.dto.profile.ProfileUpdateResponse;
@@ -10,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,5 +38,13 @@ public class UserProfileController {
             @AuthenticationPrincipal UserPrincipal principal, @Valid @RequestBody ProfileUpdateRequest request) {
         ProfileDto updatedProfile = userProfileService.updateCurrentUserProfile(principal.getUser().getId(), request);
         return ResponseEntity.ok(new ProfileUpdateResponse("Perfil actualizado", updatedProfile));
+    }
+
+    /** Actualiza nombre y preferencias no sensibles. */
+    @PatchMapping
+    public ResponseEntity<PersonalDataUpdateResponse> updatePersonalData(
+            @AuthenticationPrincipal UserPrincipal principal, @Valid @RequestBody PersonalDataUpdateRequest request) {
+        ProfileDto updatedProfile = userProfileService.updatePersonalData(principal.getUser().getId(), request);
+        return ResponseEntity.ok(new PersonalDataUpdateResponse("Datos personales actualizados", updatedProfile));
     }
 }

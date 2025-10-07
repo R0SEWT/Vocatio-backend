@@ -49,7 +49,8 @@ public class SecurityConfig {
                         // ✅ Públicos SIN /api/v1: MvcRequestMatcher los adapta
                         .requestMatchers(
                                 mvc.pattern("/"),
-                                mvc.pattern("/auth/**"),
+                                mvc.pattern("/auth/login"),
+                                mvc.pattern("/auth/register"),
                                 mvc.pattern("/v3/api-docs/**"),
                                 mvc.pattern("/swagger-ui/**"),
                                 mvc.pattern("/swagger-ui.html"),
