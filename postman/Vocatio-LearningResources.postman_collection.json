@@ -764,8 +764,8 @@
 							"variable": [
 								{
 									"key": "resourceId",
-									"value": "1",
-									"description": "ID de un recurso PDF para probar descarga"
+									"value": "2",
+									"description": "ID de un recurso PDF para probar descarga (Algoritmos y Estructuras de Datos)"
 								}
 							]
 						},
