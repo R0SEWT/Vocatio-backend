@@ -32,8 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        // ✅ Usa servletPath (ya viene SIN el context-path /api/v1)
-        final String path = request.getServletPath();
+        final String path = resolvePathWithinApplication(request);
 
         // ✅ Whitelist: Swagger / OpenAPI / Health / Auth deben pasar sin JWT
         if (isPublicPath(path)) {
@@ -83,6 +82,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 || servletPath.startsWith("/swagger-resources")
                 || servletPath.startsWith("/webjars")
                 || servletPath.startsWith("/actuator/health")
-                || servletPath.startsWith("/auth/");
+                || servletPath.equals("/actuator")
+                || servletPath.startsWith("/auth/")
+                || servletPath.equals("/");
+    }
+
+    private String resolvePathWithinApplication(HttpServletRequest request) {
+        String requestUri = request.getRequestURI();
+        String contextPath = request.getContextPath();
+
+        String path = (requestUri == null || requestUri.isBlank()) ? "/" : requestUri;
+        String ctx = (contextPath == null) ? "" : contextPath;
+
+        if (!ctx.isEmpty() && path.startsWith(ctx)) {
+            path = path.substring(ctx.length());
+        }
+
+        if (path.isEmpty()) {
+            return "/";
+        }
+
+        return path.startsWith("/") ? path : "/" + path;
     }
 }
