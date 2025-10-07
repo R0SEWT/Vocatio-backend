@@ -1,6 +1,7 @@
 package com.acme.vocatio.web;
 
 import com.acme.vocatio.exception.DuplicateEmailException;
+import com.acme.vocatio.exception.InvalidAccountDeletionConfirmationException;
 import com.acme.vocatio.exception.InvalidCredentialsException;
 import com.acme.vocatio.exception.InvalidCurrentPasswordException;
 import com.acme.vocatio.exception.InvalidPersonalDataException;
@@ -69,6 +70,15 @@ public class GlobalExceptionHandler {
         Map<String, Object> body = new HashMap<>();
         body.put("message", ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+    }
+
+    /** Error cuando la confirmación de borrado no es válida. */
+    @ExceptionHandler(InvalidAccountDeletionConfirmationException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidDeletionConfirmation(
+            InvalidAccountDeletionConfirmationException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
     /** Contraseña actual incorrecta al intentar actualizarla. */

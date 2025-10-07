@@ -50,7 +50,6 @@ public class UserProfileService {
                 .findById(userId)
                 .orElseGet(() -> {
                     Profile newProfile = new Profile();
-                    newProfile.setId(userId);
                     newProfile.setUser(user);
                     return newProfile;
                 });
@@ -79,7 +78,6 @@ public class UserProfileService {
                 .findById(userId)
                 .orElseGet(() -> {
                     Profile newProfile = new Profile();
-                    newProfile.setId(userId);
                     newProfile.setUser(user);
                     return newProfile;
                 });

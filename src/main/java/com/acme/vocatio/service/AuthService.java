@@ -68,7 +68,8 @@ public class AuthService {
             throw new InvalidCredentialsException("Credenciales inválidas");
         }
 
-        return buildAuthResponse(user, request.rememberMe(), "Inicio de sesión exitoso");
+        boolean rememberMe = Boolean.TRUE.equals(request.rememberMe());
+        return buildAuthResponse(user, rememberMe, "Inicio de sesión exitoso");
     }
 
     private AuthResponse buildAuthResponse(User user, boolean rememberMe, String message) {
