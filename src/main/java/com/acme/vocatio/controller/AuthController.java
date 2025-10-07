@@ -1,13 +1,17 @@
 package com.acme.vocatio.controller;
 
 import com.acme.vocatio.dto.auth.AuthResponse;
+import com.acme.vocatio.dto.auth.ChangePasswordRequest;
+import com.acme.vocatio.dto.auth.ChangePasswordResponse;
 import com.acme.vocatio.dto.auth.LoginRequest;
 import com.acme.vocatio.dto.auth.RegisterRequest;
+import com.acme.vocatio.security.UserPrincipal;
 import com.acme.vocatio.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,5 +34,13 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<ChangePasswordResponse> changePassword(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @Valid @RequestBody ChangePasswordRequest request) {
+        authService.changePassword(principal.getUser().getId(), request);
+        return ResponseEntity.ok(new ChangePasswordResponse("Contraseña actualizada. Inicia sesión nuevamente.", true));
     }
 }
