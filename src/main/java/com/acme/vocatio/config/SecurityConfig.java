@@ -3,6 +3,7 @@ package com.acme.vocatio.config;
 import com.acme.vocatio.security.JwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,7 +18,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -30,6 +30,8 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserDetailsService userDetailsService;
+    @Value("${server.servlet.context-path:}")
+    private String contextPath;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -40,23 +42,10 @@ public class SecurityConfig {
                 .cors(cors -> {})
                 // Stateless: usamos JWT
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // Rutas públicas usando AntPathRequestMatcher
+                // Rutas públicas dentro del context-path /api/v1
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                // Raíz
-                                AntPathRequestMatcher.antMatcher("/api/v1/"),
-                                // Auth público
-                                AntPathRequestMatcher.antMatcher("/api/v1/auth/register"),
-                                AntPathRequestMatcher.antMatcher("/api/v1/auth/login"),
-                                // Swagger / OpenAPI públicos
-                                AntPathRequestMatcher.antMatcher("/api/v1/v3/api-docs/**"),
-                                AntPathRequestMatcher.antMatcher("/api/v1/swagger-ui/**"),
-                                AntPathRequestMatcher.antMatcher("/api/v1/swagger-ui.html"),
-                                AntPathRequestMatcher.antMatcher("/api/v1/swagger-resources/**"),
-                                AntPathRequestMatcher.antMatcher("/api/v1/webjars/**"),
-                                // (opcional) health público
-                                AntPathRequestMatcher.antMatcher("/api/v1/actuator/health")
-                        ).permitAll()
+                        .requestMatchers(publicPaths())
+                        .permitAll()
                         .anyRequest().authenticated()
                 )
                 // 401 cuando no hay autenticación válida
@@ -70,6 +59,64 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    private String[] publicPaths() {
+        String normalizedContextPath = normalizeContextPath(contextPath);
+
+        var patterns = new java.util.LinkedHashSet<String>();
+
+        if (!normalizedContextPath.isEmpty()) {
+            patterns.add(normalizedContextPath);
+        }
+
+        patterns.add(joinPath(normalizedContextPath, "/"));
+        patterns.add(joinPath(normalizedContextPath, "/auth/register"));
+        patterns.add(joinPath(normalizedContextPath, "/auth/login"));
+        patterns.add(joinPath(normalizedContextPath, "/v3/api-docs/**"));
+        patterns.add(joinPath(normalizedContextPath, "/swagger-ui/**"));
+        patterns.add(joinPath(normalizedContextPath, "/swagger-ui.html"));
+        patterns.add(joinPath(normalizedContextPath, "/swagger-resources/**"));
+        patterns.add(joinPath(normalizedContextPath, "/webjars/**"));
+        patterns.add(joinPath(normalizedContextPath, "/actuator/health"));
+
+        return patterns.toArray(String[]::new);
+    }
+
+    private String normalizeContextPath(String rawContextPath) {
+        if (rawContextPath == null || rawContextPath.isBlank()) {
+            return "";
+        }
+
+        if ("/".equals(rawContextPath)) {
+            return "";
+        }
+
+        if (rawContextPath.endsWith("/")) {
+            return rawContextPath.substring(0, rawContextPath.length() - 1);
+        }
+
+        return rawContextPath;
+    }
+
+    private String joinPath(String normalizedContextPath, String pattern) {
+        if (pattern == null || pattern.isBlank()) {
+            return normalizedContextPath;
+        }
+
+        if (normalizedContextPath.isEmpty()) {
+            return pattern;
+        }
+
+        if ("/".equals(pattern)) {
+            return normalizedContextPath + "/";
+        }
+
+        if (pattern.startsWith("/")) {
+            return normalizedContextPath + pattern;
+        }
+
+        return normalizedContextPath + "/" + pattern;
     }
 
     @Bean
