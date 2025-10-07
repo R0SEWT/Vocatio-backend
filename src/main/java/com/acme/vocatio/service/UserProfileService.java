@@ -11,9 +11,10 @@ import com.acme.vocatio.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Locale;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,6 +53,7 @@ public class UserProfileService {
                 });
 
         profile.setUser(user);
+        user.setProfile(profile);
         profile.setAge(request.age().shortValue());
 
         AcademicGrade grade = AcademicGrade
@@ -66,16 +68,23 @@ public class UserProfileService {
         return toDto(user, saved, normalizedInterests);
     }
 
-    /** Limpia espacios y evita duplicados en intereses. */
+    /** Limpia espacios y evita duplicados en intereses (insensible a mayúsculas). */
     private List<String> normalizeInterests(List<String> rawInterests) {
-        Set<String> normalized = new LinkedHashSet<>();
+        Map<String, String> normalized = new LinkedHashMap<>();
         for (String interest : rawInterests) {
-            String trimmed = interest == null ? "" : interest.trim();
-            if (!trimmed.isEmpty()) {
-                normalized.add(trimmed);
+            if (interest == null) {
+                continue;
             }
+
+            String trimmed = interest.trim();
+            if (trimmed.isEmpty()) {
+                continue;
+            }
+
+            String key = trimmed.toLowerCase(Locale.ROOT);
+            normalized.putIfAbsent(key, trimmed);
         }
-        return List.copyOf(normalized);
+        return List.copyOf(normalized.values());
     }
 
     /** Serializa los intereses a JSON. */
