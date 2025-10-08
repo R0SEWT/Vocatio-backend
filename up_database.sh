@@ -8,8 +8,8 @@ sudo docker run --rm -p 8080:8080 \
   -e SPRING_DATASOURCE_USERNAME=postgres \
   -e SPRING_DATASOURCE_PASSWORD=password \
   -e JWT_SECRET="dev-secret" \
-  -e PORT=8080 \
   vocatio
+  -e PORT=8080 \
 
 # Trouble shooting
 

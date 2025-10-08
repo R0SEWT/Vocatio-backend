@@ -2,7 +2,7 @@
     "info": {
         "_postman_id": "84a1dfe7-7f53-4a62-bb75-ff6df7845adc",
         "name": "Vocatio API - Modulo 3",
-        "description": "Coleccion de pruebas funcionales para el Modulo 3 (Exploracion de carreras). Valida listado, paginacion, filtros, detalle y favoritos.",
+        "description": "Coleccion de pruebas funcionales para el Modulo 3 (Exploracion de carreras). Valida listado, paginacion y filtros.",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     },
     "item": [
@@ -28,12 +28,7 @@
                                     "pm.collectionVariables.set('careerBaselineTotalElements', '');",
                                     "pm.collectionVariables.set('careerFilterArea', '');",
                                     "pm.collectionVariables.set('careerFilterDurationToken', '');",
-                                    "pm.collectionVariables.set('careerFilterType', '');",
-                                    "pm.collectionVariables.set('careerDetailInstitutionCount', '0');",
-                                    "pm.collectionVariables.set('careerDetailResponse', '');",
-                                    "pm.collectionVariables.set('favoriteCareerId', '');",
-                                    "pm.collectionVariables.set('favoritesLastSignature', '');",
-                                    "pm.collectionVariables.set('careerInvalidId', '00000000-0000-0000-0000-000000000000');"
+                                    "pm.collectionVariables.set('careerFilterType', '');"
                                 ]
                             }
                         },
