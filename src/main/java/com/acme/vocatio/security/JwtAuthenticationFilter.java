@@ -83,6 +83,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 || servletPath.startsWith("/webjars")
                 || servletPath.startsWith("/actuator/health")
                 || servletPath.equals("/actuator")
+                || servletPath.equals("/api")
+                || servletPath.startsWith("/api/")
                 || servletPath.startsWith("/auth/")
                 || servletPath.equals("/");
     }
