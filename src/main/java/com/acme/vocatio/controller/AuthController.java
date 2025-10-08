@@ -93,6 +93,27 @@ public class AuthController {
     }
 
     @PostMapping("/change-password")
+    @Operation(
+            summary = "Cambia la contraseña de la cuenta actual",
+            description = "Requiere la contraseña vigente y una nueva que cumpla la política de seguridad.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Contraseña actualizada",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ChangePasswordResponse.class))),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Reglas de contraseña incumplidas",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(example = "{\n  \"message\": \"Revisa los datos enviados\",\n  \"errors\": {\n    \"newPassword\": [\"Debe tener al menos 8 caracteres, 1 mayúscula y 1 número\"]\n  }\n}"))),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Contraseña actual incorrecta o sesión inválida",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(example = "{\n  \"message\": \"Credenciales inválidas\"\n}")))
+            }
+    )
     public ResponseEntity<ChangePasswordResponse> changePassword(
             @AuthenticationPrincipal UserPrincipal principal,
             @Valid @RequestBody ChangePasswordRequest request) {
