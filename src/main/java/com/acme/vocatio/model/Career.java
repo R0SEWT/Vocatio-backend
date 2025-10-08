@@ -1,6 +1,8 @@
 package com.acme.vocatio.model;
 
 import jakarta.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -30,6 +32,12 @@ public class Career {
     @Column(name = "perfil_requerido", columnDefinition = "TEXT")
     private String perfilRequerido;
 
+    @Column(name = "plan_estudios_basico", columnDefinition = "TEXT")
+    private String planEstudiosBasico;
+
+    @Column(name = "perfil_egreso", columnDefinition = "TEXT")
+    private String perfilEgreso;
+
     // Campos opcionales para filtros futuros
     @Column(length = 50)
     private String duracion;      // Ej: "3 años", "5 años"
@@ -42,4 +50,11 @@ public class Career {
 
     @Column(length = 50)
     private String tipoFormacion; // Ej: "Técnica", "Universitaria"
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "CarreraInstitucion",
+            joinColumns = @JoinColumn(name = "id_carrera"),
+            inverseJoinColumns = @JoinColumn(name = "id_institucion"))
+    private Set<Institution> instituciones = new HashSet<>();
 }

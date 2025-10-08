@@ -1,14 +1,13 @@
 package com.acme.vocatio.controller;
 
-import com.acme.vocatio.dto.career.CareerListDto;
+import com.acme.vocatio.dto.career.CareerDetailDto;
+import com.acme.vocatio.dto.career.CareerPageResponse;
 import com.acme.vocatio.service.CareerService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Controlador para explorar las carreras disponibles.
@@ -23,29 +22,20 @@ public class CareerController {
 
     /** Endpoint: GET /api/careers - Lista paginada (M3-01). */
     @GetMapping
-    public ResponseEntity<Page<CareerListDto>> listCareers(Pageable pageable) {
-        Page<CareerListDto> careers = careerService.listCareers(pageable);
+    public ResponseEntity<CareerPageResponse> listCareers(
+            Pageable pageable,
+            @RequestParam(required = false) String area,
+            @RequestParam(required = false) String duration,
+            @RequestParam(required = false, name = "type") String tipoFormacion) {
 
-        if (careers.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-
-        return ResponseEntity.ok(careers);
+        CareerPageResponse response = careerService.listCareers(pageable, area, duration, tipoFormacion);
+        return ResponseEntity.ok(response);
     }
 
-    /** Endpoint: GET /api/careers/filter - Filtrado por área, duración y tipo (M3-02). */
-    @GetMapping("/filter")
-    public ResponseEntity<List<CareerListDto>> filterCareers(
-            @RequestParam(required = false) String area,
-            @RequestParam(required = false) String duracion,
-            @RequestParam(required = false) String tipoFormacion) {
-
-        List<CareerListDto> careers = careerService.filterCareers(area, duracion, tipoFormacion);
-
-        if (careers.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-
-        return ResponseEntity.ok(careers);
+    /** Endpoint: GET /api/careers/{id} - Detalle ampliado (M3-03). */
+    @GetMapping("/{id}")
+    public ResponseEntity<CareerDetailDto> getCareerDetail(@PathVariable Long id) {
+        CareerDetailDto detail = careerService.getCareerDetail(id);
+        return ResponseEntity.ok(detail);
     }
 }

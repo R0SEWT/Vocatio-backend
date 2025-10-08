@@ -16,10 +16,9 @@ public class PublicEndpointRegistry {
 
     private static final List<String> BASE_PATTERNS = List.of(
             "/",
+            "/error",
             "/auth/login",
             "/auth/register",
-            "/api",
-            "/api/**",
             "/v3/api-docs/**",
             "/swagger-ui/**",
             "/swagger-ui.html",

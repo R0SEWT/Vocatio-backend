@@ -8,7 +8,8 @@ public record CareerListDto(
         Long id,
         String nombre,
         String descripcion,
-        String perfilRequerido,
-
-        String modalidad //opcional
+        String duracion,
+        String modalidad,
+        String areaInteres,
+        String tipoFormacion
 ) {}

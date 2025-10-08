@@ -1,5 +1,6 @@
 package com.acme.vocatio.web;
 
+import com.acme.vocatio.exception.CareerNotFoundException;
 import com.acme.vocatio.exception.DuplicateEmailException;
 import com.acme.vocatio.exception.InvalidAccountDeletionConfirmationException;
 import com.acme.vocatio.exception.InvalidCredentialsException;
@@ -117,6 +118,14 @@ public class GlobalExceptionHandler {
     /** Avisa cuando no se encontró al usuario. */
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleUserNotFound(UserNotFoundException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
+    /** Respuesta consistente cuando una carrera no existe. */
+    @ExceptionHandler(CareerNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleCareerNotFound(CareerNotFoundException ex) {
         Map<String, Object> body = new HashMap<>();
         body.put("message", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
