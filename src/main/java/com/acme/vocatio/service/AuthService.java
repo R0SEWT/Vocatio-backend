@@ -39,7 +39,7 @@ public class AuthService {
     public AuthResponse register(RegisterRequest request) {
         String normalizedEmail = request.email().trim().toLowerCase();
         if (userRepository.existsByEmailIgnoreCase(normalizedEmail)) {
-            throw new DuplicateEmailException("El email ya está registrado");
+            throw new DuplicateEmailException("El email ya esta registrado");
         }
 
         User user = new User();

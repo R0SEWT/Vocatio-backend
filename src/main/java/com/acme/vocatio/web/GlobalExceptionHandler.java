@@ -61,7 +61,7 @@ public class GlobalExceptionHandler {
         body.put("message", ex.getMessage());
         body.put(
                 "suggestions",
-                List.of("Inicia sesión con tu cuenta", "Recupera tu contraseña si la olvidaste"));
+                List.of("Inicia sesion con tu cuenta", "Recupera tu contrasena si la olvidaste"));
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
 
