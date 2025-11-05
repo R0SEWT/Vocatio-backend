@@ -17,9 +17,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
-@RequestMapping("/users/me/favorites")
+@RequestMapping({"/users/me/favorites", "/api/users/me/favorites"})
 @RequiredArgsConstructor
 public class UserFavoriteController {
 
@@ -36,8 +37,13 @@ public class UserFavoriteController {
             @AuthenticationPrincipal UserPrincipal principal,
             @Valid @RequestBody FavoriteCareerRequest request) {
         CareerListDto saved = favoriteCareerService.addFavorite(principal.getUserId(), request.careerId());
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(saved.id())
+                .toUri();
+
         return ResponseEntity
-                .created(URI.create("/api/users/me/favorites/" + saved.id()))
+                .created(location)
                 .body(saved);
     }
 

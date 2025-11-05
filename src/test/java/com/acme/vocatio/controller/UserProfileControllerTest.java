@@ -46,6 +46,14 @@ class UserProfileControllerTest {
                 .andExpect(jsonPath("$.grade").value(nullValue()))
                 .andExpect(jsonPath("$.gradeLabel").value(nullValue()))
                 .andExpect(jsonPath("$.interests", hasSize(0)));
+
+        mockMvc.perform(get("/api/users/me").header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value(email))
+                .andExpect(jsonPath("$.age").value(nullValue()))
+                .andExpect(jsonPath("$.grade").value(nullValue()))
+                .andExpect(jsonPath("$.gradeLabel").value(nullValue()))
+                .andExpect(jsonPath("$.interests", hasSize(0)));
     }
 
     @Test
@@ -53,7 +61,7 @@ class UserProfileControllerTest {
         String email = "update-profile@vocatio.com";
         String token = obtainAccessToken(email);
 
-        mockMvc.perform(put("/users/me")
+        mockMvc.perform(put("/api/users/me")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -80,13 +88,20 @@ class UserProfileControllerTest {
                 .andExpect(jsonPath("$.age").value(18))
                 .andExpect(jsonPath("$.grade").value("SUPERIOR_TECNICA_2"))
                 .andExpect(jsonPath("$.interests", contains("Tecnología", "Arte")));
+
+        mockMvc.perform(get("/api/users/me").header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value(email))
+                .andExpect(jsonPath("$.age").value(18))
+                .andExpect(jsonPath("$.grade").value("SUPERIOR_TECNICA_2"))
+                .andExpect(jsonPath("$.interests", contains("Tecnología", "Arte")));
     }
 
     @Test
     void shouldRejectAgeOutsideRange() throws Exception {
         String token = obtainAccessToken("invalid-age@vocatio.com");
 
-        mockMvc.perform(put("/users/me")
+        mockMvc.perform(put("/api/users/me")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""

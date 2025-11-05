@@ -21,7 +21,7 @@ import java.util.Map;
  * Endpoints para ver materiales sugeridos por carrera, área vocacional y gestionar favoritos.
  */
 @RestController
-@RequestMapping("/learning-resources")
+@RequestMapping({"/learning-resources", "/api/learning-resources"})
 @RequiredArgsConstructor
 public class LearningResourceController {
 
@@ -30,7 +30,7 @@ public class LearningResourceController {
     private final UrlValidationService urlValidationService;
 
     /**
-     * GET /api/learning-resources/by-career/{careerId}
+     * GET /learning-resources/by-career/{careerId} (alias /api/learning-resources/by-career/{careerId})
      * Obtiene recursos de aprendizaje sugeridos para una carrera específica.
      */
     @GetMapping("/by-career/{careerId}")
@@ -48,7 +48,7 @@ public class LearningResourceController {
     }
 
     /**
-     * GET /api/learning-resources/by-area/{areaId}
+     * GET /learning-resources/by-area/{areaId} (alias /api/learning-resources/by-area/{areaId})
      * Obtiene recursos de aprendizaje sugeridos para un área de interés específica.
      */
     @GetMapping("/by-area/{areaId}")
@@ -66,7 +66,7 @@ public class LearningResourceController {
     }
 
     /**
-     * GET /api/learning-resources/recommended
+     * GET /learning-resources/recommended (alias /api/learning-resources/recommended)
      * Obtiene recursos personalizados basados en carreras del perfil vocacional.
      */
     @GetMapping("/recommended")
@@ -84,7 +84,7 @@ public class LearningResourceController {
     }
 
     /**
-     * GET /api/learning-resources/by-interests
+     * GET /learning-resources/by-interests (alias /api/learning-resources/by-interests)
      * Obtiene recursos basados en múltiples áreas de interés del usuario.
      */
     @GetMapping("/by-interests")
@@ -102,7 +102,7 @@ public class LearningResourceController {
     }
 
     /**
-     * GET /api/learning-resources/saved
+     * GET /learning-resources/saved (alias /api/learning-resources/saved)
      * Obtiene todos los recursos guardados como favoritos por el usuario.
      */
     @GetMapping("/saved")
@@ -119,7 +119,7 @@ public class LearningResourceController {
     }
 
     /**
-     * POST /api/learning-resources/save
+     * POST /learning-resources/save (alias /api/learning-resources/save)
      * Guarda un recurso en favoritos con validación de enlace externo.
      */
     @PostMapping("/save")
@@ -143,7 +143,7 @@ public class LearningResourceController {
     }
 
     /**
-     * DELETE /api/learning-resources/unsave/{resourceId}
+     * DELETE /learning-resources/unsave/{resourceId} (alias /api/learning-resources/unsave/{resourceId})
      * Elimina un recurso de favoritos.
      */
     @DeleteMapping("/unsave/{resourceId}")
@@ -158,7 +158,7 @@ public class LearningResourceController {
     }
 
     /**
-     * GET /api/learning-resources/{resourceId}/is-saved
+     * GET /learning-resources/{resourceId}/is-saved (alias /api/learning-resources/{resourceId}/is-saved)
      * Verifica si un recurso está guardado en favoritos.
      */
     @GetMapping("/{resourceId}/is-saved")
@@ -173,7 +173,7 @@ public class LearningResourceController {
     }
 
     /**
-     * GET /api/learning-resources/{resourceId}/download
+     * GET /learning-resources/{resourceId}/download (alias /api/learning-resources/{resourceId}/download)
      * Descarga un archivo PDF del recurso.
      */
     @GetMapping("/{resourceId}/download")
@@ -186,7 +186,7 @@ public class LearningResourceController {
     }
 
     /**
-     * POST /api/learning-resources/{resourceId}/validate-link
+     * POST /learning-resources/{resourceId}/validate-link (alias /api/learning-resources/{resourceId}/validate-link)
      * Valida un enlace externo antes de guardarlo.
      */
     @PostMapping("/{resourceId}/validate-link")

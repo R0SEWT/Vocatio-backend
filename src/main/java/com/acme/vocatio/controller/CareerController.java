@@ -14,13 +14,13 @@ import lombok.RequiredArgsConstructor;
  * Casos de uso: M3-01 (listar) y M3-02 (filtrar).
  */
 @RestController
-@RequestMapping("/careers")
+@RequestMapping({"/careers", "/api/careers"})
 @RequiredArgsConstructor
 public class CareerController {
 
     private final CareerService careerService;
 
-    /** Endpoint: GET /api/careers - Lista paginada (M3-01). */
+    /** Endpoint: GET /careers (alias /api/careers) - Lista paginada (M3-01). */
     @GetMapping
     public ResponseEntity<CareerPageResponse> listCareers(
             Pageable pageable,
@@ -32,7 +32,7 @@ public class CareerController {
         return ResponseEntity.ok(response);
     }
 
-    /** Endpoint: GET /api/careers/{id} - Detalle ampliado (M3-03). */
+    /** Endpoint: GET /careers/{id} (alias /api/careers/{id}) - Detalle ampliado (M3-03). */
     @GetMapping("/{id}")
     public ResponseEntity<CareerDetailDto> getCareerDetail(@PathVariable Long id) {
         CareerDetailDto detail = careerService.getCareerDetail(id);

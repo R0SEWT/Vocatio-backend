@@ -27,9 +27,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Endpoints del perfil del usuario autenticado. */
+/** Endpoints del perfil del usuario autenticado (disponibles en /users/me y /api/users/me). */
 @RestController
-@RequestMapping("/users/me")
+@RequestMapping({"/users/me", "/api/users/me"})
 @RequiredArgsConstructor
 @Tag(name = "Perfil de usuario", description = "Gestión del perfil y la cuenta de la persona autenticada")
 public class UserProfileController {
